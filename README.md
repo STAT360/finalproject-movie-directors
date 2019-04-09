@@ -8,3 +8,4 @@ Our group wants to create an analysis package that uses data to determine to who
 
 Where do you expect to find data? Do you need help finding data? What question will your project answer or purpose will it solve?
 - We are planning on using data sets from resources on amelia.mn and other sources such as imdb. We are still compiling data sets to use.
+- Data set found with necessary variables https://data.world/data-society/imdb-5000-movie-dataset
