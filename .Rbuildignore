@@ -1,3 +1,6 @@
 ^final\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^final.project2\.Rcheck$
+^final.project2.*\.tar\.gz$
+^final.project2.*\.tgz$
