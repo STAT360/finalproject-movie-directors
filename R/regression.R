@@ -28,11 +28,13 @@ imdb.mod = lm(imdb_score ~ director_name, data = ReducedMovies)
 anova(imdb.mod)
 max(coef(imdb.mod))
 
+test <- tidy(gross.mod)
 #We only want to look at directors that add at least 54,000,000 dollars to gross.
 gross.data <- test %>%
   arrange(desc(estimate)) %>% 
   filter(estimate > 54000000) %>% 
   mutate(term = str_remove(term, "director_name"))
+saveRDS(gross.data, file = "../data/gross.Rds")
 
 #Plot of coefficients for directors in terms of gross added
 ggplot(gross.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = ifelse(p.value < 0.05,'Significant','Insignificant'))) +
@@ -42,7 +44,7 @@ ggplot(gross.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = 
   scale_y_continuous(breaks = c(0,50000000,100000000,150000000,200000000), labels = scales::comma) +
   coord_flip()
  
-test <- tidy(imdb.mod)
+imdb.data <- tidy(imdb.mod)
 
 #We only want to look at directors that add at least .5 IMDb points.
 imdb.data <- imdb.data %>%
@@ -58,5 +60,15 @@ ggplot(imdb.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = i
   coord_flip() 
 
 
-#Create a regression model that combines
+#Creating the prediction function
+regression.table <- tidy(multiple.mod) %>% 
+  mutate(term = str_remove(term, "director_name")) %>% 
+  mutate(term = str_remove(term, "actor_1_name")) %>% 
+  mutate(term = str_remove(term, "content_rating"))
+predicted.gross = (director_name + coef(multiple.mod)["Movie_Data$budget"]*budget + 
+                     duration*coef(multiple.mod)["Movie_Data$duration"] + actor_1_name + 
+                     content_rating*coef(multiple.mod)["Movie_Data$content_rating"] + 
+                     imdb_score*coef(multiple.mod)["Movie_Data$imdb_score"] + 
+                     title_year*coef(multiple.mod)["Movie_Data$title_year"])
+  predicted.gross
 
