@@ -4,8 +4,8 @@ Version: 0.0.0.9000
 Authors@R: person("Michael", "Gustin", email = "gust3605@stthomas.edu", role = c("aut", "cre"))
 Description: It is a package that movies.
 Depends: R (>= 3.4.3),
-dplyr,
-ggplot2
+        dplyr,
+        ggplot2
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
