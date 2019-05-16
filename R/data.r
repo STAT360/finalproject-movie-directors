@@ -32,6 +32,6 @@
 #'  /item {imdb_score}{}
 #'  /item {aspect_ratio}{}
 #'  /item {movie_facebook_likes}{}
-#' @references 
+#' @references https://data.world/data-society/imdb-5000-movie-dataset
 #' }
 "Movie_Data"
