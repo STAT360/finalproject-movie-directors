@@ -10,12 +10,15 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>", 
+  eval = TRUE
 )
 ```
 
 ```{r setup}
 library(final.project2)
+library(tidyverse)
+library(broom)
 ```
 
 
@@ -88,39 +91,47 @@ regression.table <- tidy(multiple.mod) %>%
   mutate(term = str_remove(term, "director_name")) %>% 
   mutate(term = str_remove(term, "actor_1_name")) %>% 
   mutate(term = str_remove(term, "content_rating"))
-predicted.gross = (director_name + coef(multiple.mod)["Movie_Data$budget"]*budget + 
-                     duration*coef(multiple.mod)["Movie_Data$duration"] + actor_1_name + 
-                     content_rating*coef(multiple.mod)["Movie_Data$content_rating"] + 
-                     imdb_score*coef(multiple.mod)["Movie_Data$imdb_score"] + 
-                     title_year*coef(multiple.mod)["Movie_Data$title_year"])
-  predicted.gross
+
+
 
 ```
 
 ```{r}
-Director.Gross <- Movie_Data %>% 
-  group_by(director_name) %>% 
-  summarise(Mean.Gross = sum(gross, na.rm = TRUE), 
-            Mean.Budget = sum(budget, na.rm = TRUE)) %>%
-  mutate(Net = Mean.Gross - Mean.Budget) %>% 
-  arrange(desc(Net))
+gross.predictor <- function(director_name, actor_1_name, budget = 50000000, duration = 120, content_rating = "PG-13", imdb_score = 7.5, title_year = 2019, data = regression.table) {
 
-Director.Gross <- Movie_Data %>% 
-  group_by(director_name) %>% 
-  summarise(Mean.Gross = mean(gross, na.rm = TRUE), 
-            Mean.Budget = mean(budget, na.rm = TRUE)) %>%
-  mutate(Net = Mean.Gross - Mean.Budget) %>% 
-  arrange(desc(Net))
+  budget.coef <-  as.numeric(regression.table %>% filter(term == "budget") %>% select("estimate"))
+  duration.coef <-  as.numeric(regression.table %>% filter(term == "duration") %>% select("estimate"))
+  director.coef <-  as.numeric(regression.table %>% filter(term == director_name) %>% select("estimate"))
+  actor.coef <-  as.numeric(regression.table %>% filter(term == actor_1_name) %>% select("estimate"))
+  rating.coef <-  as.numeric(regression.table %>% filter(term == content_rating) %>% select("estimate"))
+  imdb.coef <-  as.numeric(regression.table %>% filter(term == "imdb_score") %>% select("estimate"))
+  year.coef <-  as.numeric(regression.table %>% filter(term == "title_year") %>% select("estimate"))
 
 
-ggplot(PG13movies, aes(x = duration, y = gross, colour = imdb_score)) + 
-  geom_point()
+  dollars <- (1938713878.08 + (director.coef) + (actor.coef) + (budget*budget.coef) + (duration*duration.coef) + (rating.coef) + (imdb_score*imdb.coef) + (title_year*year.coef))
+    
+  return(dollars)
+}
 
 
-gross.predictor("Christopher Nolan", 150000000, 145, "Tom Hardy", "PG-13", 8.2, 2019)
-gross.predictor("Steven Spielberg", 50000000, 130, "Tom Cruise", "PG-13", 7.8, 2019)
-gross.predictor("Steven Spielberg", 50000000, 125, "Tom Cruise", "PG-13", 7.8, 2019)
+gross.predictor("Christopher Nolan", "Tom Hardy", 150000000, 145, "PG-13", 8.2, 2019)
+gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 130, "PG-13", 7.8, 2019)
+gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 125, "PG-13", 7.8, 2019)
 
+#Inception
+gross.predictor("Christopher Nolan", "Leonardo DiCaprio", 160000000, 148, "PG-13", 8.8, 2010)
+
+#Pulp Fiction
+#gross.predictor("Quentin Tarantino", "Bruce Willis", 8000000, 154, "PG-13", 8.9, 1994)
+
+#You Don't Mess With the Zohan
+gross.predictor("Dennis Dugan", "Adam Sandler", 90000000, 113, "PG-13", 5.5, 2008)
+
+#The Usual Suspects
+gross.predictor("Bryan Singer", "Kevin Spacey", 6000000, 106, "PG-13", 8.6, 1995)
+
+#Once Upon a time in Hollywood
+gross.predictor("J.J. Abrams", "Leonardo Dicaprio", 95000000, 165, "PG-13", 8.5, 2019)
 ```
 
 
