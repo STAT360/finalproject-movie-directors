@@ -31,28 +31,23 @@ Reduced.List <- Movie_Data %>%
 
 ReducedMovies <- Movie_Data %>%
   semi_join(Reduced.List, by = "director_name")
+```
 
+```{r}
 #Multiple regression model that predicts gross from director name, actor name, 
 #budget, duration, content rating, and year released
 multiple.mod = lm(gross ~ director_name + budget + duration + actor_1_name + content_rating + imdb_score + title_year, data = ReducedMovies)
 (coef(multiple.mod))
 anova(multiple.mod)
 max(coef(multiple.mod))
+```
 
-coef(multiple.mod)["Movie_Data$title_year"]
-coef(multiple.mod)[661:664]
-
+```{r}
 #Creating a model that predicts gross based on director.
 gross.mod = lm(gross ~ director_name, data = ReducedMovies)
 (coef(gross.mod))
 anova(gross.mod)
 max(coef(gross.mod))
-
-#Creating a model that predicts IMDb score based on director.
-imdb.mod = lm(imdb_score ~ director_name, data = ReducedMovies)
-(coef(imdb.mod))
-anova(imdb.mod)
-max(coef(imdb.mod))
 
 test <- tidy(gross.mod)
 #We only want to look at directors that add at least 54,000,000 dollars to gross.
@@ -69,7 +64,15 @@ ggplot(gross.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = 
   xlab("Director Name") + ylab("Gross Added") + ggtitle("Best Directors in Terms of Gross Added") +
   scale_y_continuous(breaks = c(0,50000000,100000000,150000000,200000000), labels = scales::comma) +
   coord_flip()
- 
+```
+
+```{r}
+#Creating a model that predicts IMDb score based on director.
+imdb.mod = lm(imdb_score ~ director_name, data = ReducedMovies)
+(coef(imdb.mod))
+anova(imdb.mod)
+max(coef(imdb.mod))
+
 imdb.data <- tidy(imdb.mod)
 
 #We only want to look at directors that add at least .5 IMDb points.
@@ -84,19 +87,19 @@ ggplot(imdb.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = i
   theme(axis.text.x=element_text(angle=90,hjust=1,vjust=0.5)) +
   xlab("Director Name") + ylab("IMDb Points Added") + ggtitle("Best Directors in Terms of IMDb Points Added")+
   coord_flip() 
+```
 
-
+```{r}
 #Creating the prediction function
 regression.table <- tidy(multiple.mod) %>% 
   mutate(term = str_remove(term, "director_name")) %>% 
   mutate(term = str_remove(term, "actor_1_name")) %>% 
   mutate(term = str_remove(term, "content_rating"))
 
-
-
 ```
 
 ```{r}
+#Function for predicting domestic gross from several factors.
 gross.predictor <- function(director_name, actor_1_name, budget = 50000000, duration = 120, content_rating = "PG-13", imdb_score = 7.5, title_year = 2019, data = regression.table) {
 
   budget.coef <-  as.numeric(regression.table %>% filter(term == "budget") %>% select("estimate"))
@@ -113,7 +116,7 @@ gross.predictor <- function(director_name, actor_1_name, budget = 50000000, dura
   return(dollars)
 }
 
-
+#Examples of using the function:
 gross.predictor("Christopher Nolan", "Tom Hardy", 150000000, 145, "PG-13", 8.2, 2019)
 gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 130, "PG-13", 7.8, 2019)
 gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 125, "PG-13", 7.8, 2019)
