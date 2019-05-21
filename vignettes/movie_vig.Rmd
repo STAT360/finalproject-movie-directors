@@ -91,7 +91,8 @@ ggplot(imdb.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = i
 
 ```{r}
 #Creating the prediction function
-regression.table <- tidy(multiple.mod) %>% 
+regression.table <- tidy(multiple.mod)%>%
+  filter(term != "actor_1_nameQuentin Tarantino")%>% 
   mutate(term = str_remove(term, "director_name")) %>% 
   mutate(term = str_remove(term, "actor_1_name")) %>% 
   mutate(term = str_remove(term, "content_rating"))
@@ -125,7 +126,7 @@ gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 125, "PG-13", 7.8, 2
 gross.predictor("Christopher Nolan", "Leonardo DiCaprio", 160000000, 148, "PG-13", 8.8, 2010)
 
 #Pulp Fiction
-#gross.predictor("Quentin Tarantino", "Bruce Willis", 8000000, 154, "PG-13", 8.9, 1994)
+gross.predictor("Quentin Tarantino", "Bruce Willis", 8000000, 154, "PG-13", 8.9, 1994)
 
 #You Don't Mess With the Zohan
 gross.predictor("Dennis Dugan", "Adam Sandler", 90000000, 113, "PG-13", 5.5, 2008)
