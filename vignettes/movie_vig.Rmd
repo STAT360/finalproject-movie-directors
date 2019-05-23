@@ -186,8 +186,12 @@ ggplot(Nolan.movies, aes(x = budget, y = gross), label = Nolan.movies$movie_titl
 ```
 
 
+#Class Example
+```{r}
+gross.predictor("Christopher Nolan", "Tom Hardy", 250000000, 164, "PG-13", 8.5, 2012)
 
-
+gross.predictor("Christopher Nolan", "Tom Hardy", 250000000, 164, "PG-13", 8.5, 2012)
+```
 
 
 
