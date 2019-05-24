@@ -21,7 +21,7 @@ library(tidyverse)
 library(broom)
 ```
 
-#Removing movies with directors that had less than 6 films in the data set.
+Removing movies with directors that had less than 6 films in the data set.
 ```{r}
 data("Movie_Data")
 Reduced.List <- Movie_Data %>% 
@@ -33,15 +33,14 @@ ReducedMovies <- Movie_Data %>%
   semi_join(Reduced.List, by = "director_name")
 ```
 
-#Creating a large regression model that predicts domestic gross using director name, actor name, 
-#budget, duration, content rating, and year released
+Creating a large regression model that predicts domestic gross using director name, actor name, budget, duration, content rating, and year released
 ```{r}
 
 multiple.mod = lm(gross ~ director_name + budget + duration + actor_1_name + content_rating + imdb_score + title_year, data = ReducedMovies)
 anova(multiple.mod)
 ```
 
-#Another regression model that only uses the name of the director to predict a movie's domestic gross.
+Another regression model that only uses the name of the director to predict a movie's domestic gross.
 ```{r}
 #Creating a model that predicts gross based on director.
 gross.mod = lm(gross ~ director_name, data = ReducedMovies)
@@ -50,7 +49,7 @@ max(coef(gross.mod))
 test <- tidy(gross.mod)
 ```
 
-#We only want to look at directors that add at least 54,000,000 dollars to gross.
+We only want to look at directors that add at least 54,000,000 dollars to gross.
 ```{r}
 gross.data <- test %>%
   arrange(desc(estimate)) %>% 
@@ -59,7 +58,7 @@ gross.data <- test %>%
 saveRDS(gross.data, file = "../data/gross.Rds")
 ```
 
-#Plot of coefficients for directors in terms of gross added
+Plot of coefficients for directors in terms of gross added
 ```{r}
 ggplot(gross.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = ifelse(p.value < 0.05,'Significant','Insignificant'))) +
   labs(fill = 'p-value') +
@@ -69,7 +68,7 @@ ggplot(gross.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = 
   coord_flip()
 ```
 
-#Creating a model that predicts IMDb score based on director.
+Creating a model that predicts IMDb score based on director.
 ```{r}
 imdb.mod = lm(imdb_score ~ director_name, data = ReducedMovies)
 anova(imdb.mod)
@@ -77,7 +76,7 @@ max(coef(imdb.mod))
 imdb.data <- tidy(imdb.mod)
 ```
 
-#We only want to look at directors that add at least .5 IMDb points.
+We only want to look at directors that add at least .5 IMDb points.
 ```{r}
 imdb.data <- imdb.data %>%
   slice(-1) %>% 
@@ -86,7 +85,7 @@ imdb.data <- imdb.data %>%
   mutate(term = str_remove(term, "director_name"))
 ```
 
-#Plot of coefficients for directors in terms of imdb points added
+Plot of coefficients for directors in terms of imdb points added
 ```{r}
 ggplot(imdb.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = ifelse(p.value < 0.05,'Significant','Insignificant'))) +
   labs(fill = 'p-value') +
@@ -96,7 +95,7 @@ ggplot(imdb.data) + geom_col(aes(x=reorder(term, estimate), y=estimate, fill = i
 ```
 
 
-#Creating the prediction function
+Creating the prediction function
 ```{r}
 regression.table <- tidy(multiple.mod)%>%
   filter(term != "actor_1_nameQuentin Tarantino")%>% 
@@ -106,7 +105,7 @@ regression.table <- tidy(multiple.mod)%>%
 ```
 
 
-#Function for predicting domestic gross from several factors.
+Function for predicting domestic gross from several factors.
 ```{r}
 gross.predictor <- function(director_name, actor_1_name, budget = 50000000, duration = 120, content_rating = "PG-13", imdb_score = 7.5, title_year = 2019, data = regression.table) {
 
@@ -125,7 +124,7 @@ gross.predictor <- function(director_name, actor_1_name, budget = 50000000, dura
 }
 ```
 
-#Examples of using the function:
+Examples of using the function:
 ```{r}
 gross.predictor("Christopher Nolan", "Tom Hardy", 150000000, 145, "PG-13", 8.2, 2019)
 gross.predictor("Steven Spielberg", "Tom Cruise", 50000000, 130, "PG-13", 7.8, 2019)
@@ -161,7 +160,8 @@ gross.predictor("Christopher Nolan", "Al Pacino", 46000000, 118, "PG-13", 7.2, 2
 gross.predictor("Christopher Nolan", "Christian Bale", 40000000, 130, "PG-13", 8.5, 2006)
 gross.predictor("Christopher Nolan", "Callum Rennie", 9000000, 113, "PG-13", 8.5, 2000)
 ```
-#Testing the Model with a small data set
+
+Testing the Model with a small data set
 ```{r}
 ratios = c()
 ratios[1] = (448130642-370414358)/10000000
@@ -186,7 +186,7 @@ ggplot(Nolan.movies, aes(x = budget, y = gross), label = Nolan.movies$movie_titl
 ```
 
 
-#Class Example
+Class Example
 ```{r}
 gross.predictor("Christopher Nolan", "Tom Hardy", 250000000, 164, "PG-13", 8.5, 2012)
 
